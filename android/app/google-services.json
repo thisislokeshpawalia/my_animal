@@ -1,0 +1,90 @@
+{
+  "project_info": {
+    "project_number": "972571775632",
+    "project_id": "myanimal-50405",
+    "storage_bucket": "myanimal-50405.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:972571775632:android:9f02f2f480a3d8a2f7be15",
+        "android_client_info": {
+          "package_name": "com.example.my_animal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "972571775632-rc4l77a3l2gggt2aiqcv3lp5pqmq9a73.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDW5IH0J2FbKbRWMtrI8VEL_o5WR5znsmU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "972571775632-rc4l77a3l2gggt2aiqcv3lp5pqmq9a73.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "972571775632-s6h37s9ob36od9vjcr0tne9ek4rgrhj4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.myAnimal"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:972571775632:android:09b94b703c0601c4f7be15",
+        "android_client_info": {
+          "package_name": "com.infoedge.myanimal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "972571775632-qkrddocapj10v54riua8c8u1823i57h7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.infoedge.myanimal",
+            "certificate_hash": "135fea95fd3fe687865a55950e92ed2c06638f09"
+          }
+        },
+        {
+          "client_id": "972571775632-rc4l77a3l2gggt2aiqcv3lp5pqmq9a73.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDW5IH0J2FbKbRWMtrI8VEL_o5WR5znsmU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "972571775632-rc4l77a3l2gggt2aiqcv3lp5pqmq9a73.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "972571775632-s6h37s9ob36od9vjcr0tne9ek4rgrhj4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.myAnimal"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
