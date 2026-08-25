@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/app_color.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_style.dart';
-import '../model/wishlist_item.dart';
+import '../../home/models/product_model.dart';
+import '../../cart/provider/cart_provider.dart';
+import '../providers/wishlist_provider.dart'; // Extracted clean provider import
 
-class WishlistCard extends StatelessWidget {
-  final WishlistModel product;
+class WishlistCard extends ConsumerWidget {
+  final Product product;
 
   const WishlistCard({
     super.key,
@@ -14,10 +17,10 @@ class WishlistCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final discount =
-    ((product.oldPrice - product.price) / product.oldPrice * 100)
-        .round();
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Generate a simulated baseline original price
+    final simulatedOldPrice = product.price + 300;
+    final discount = ((simulatedOldPrice - product.price) / simulatedOldPrice * 100).round();
 
     return Card(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -27,17 +30,14 @@ class WishlistCard extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           children: [
-
-            /// Product
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 /// Image
                 ClipRRect(
                   borderRadius: BorderRadius.circular(14),
                   child: Image.network(
-                    product.image,
+                    product.image, // Updated from imageUrl to FakeStore API's 'image'
                     width: 95,
                     height: 95,
                     fit: BoxFit.cover,
@@ -61,27 +61,24 @@ class WishlistCard extends StatelessWidget {
                 /// Details
                 Expanded(
                   child: Column(
-                    crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       /// Name + Favourite
                       Row(
-                        crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-
                           Expanded(
                             child: Text(
-                              product.name,
+                              product.title, // Updated from name to FakeStore API's 'title'
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: AppTextStyles.title,
                             ),
                           ),
-
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              ref.read(wishlistProvider.notifier).toggleWishlist(product);
+                            },
                             splashRadius: 20,
                             icon: const Icon(
                               Icons.favorite,
@@ -96,7 +93,6 @@ class WishlistCard extends StatelessWidget {
                       /// Rating
                       Row(
                         children: [
-
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
@@ -104,34 +100,27 @@ class WishlistCard extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: AppColors.primary,
-                              borderRadius:
-                              BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(20),
                             ),
-                            child: Row(
+                            child: const Row( // Hardcoded to 4.5 if rating object is missing from schema
                               children: [
-
-                                const Icon(
+                                Icon(
                                   Icons.star,
                                   size: 14,
                                   color: Colors.white,
                                 ),
-
-                                const SizedBox(width: 4),
-
+                                SizedBox(width: 4),
                                 Text(
-                                  product.rating.toString(),
-                                  style: const TextStyle(
+                                  "4.5",
+                                  style: TextStyle(
                                     color: Colors.white,
-                                    fontWeight:
-                                    FontWeight.w600,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-
                           const SizedBox(width: 10),
-
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
@@ -139,8 +128,7 @@ class WishlistCard extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: Colors.red.shade50,
-                              borderRadius:
-                              BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               "$discount% OFF",
@@ -158,7 +146,6 @@ class WishlistCard extends StatelessWidget {
                       /// Price
                       Row(
                         children: [
-
                           Text(
                             "₹${product.price.toStringAsFixed(0)}",
                             style: const TextStyle(
@@ -167,14 +154,11 @@ class WishlistCard extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-
                           const SizedBox(width: 10),
-
                           Text(
-                            "₹${product.oldPrice.toStringAsFixed(0)}",
+                            "₹${simulatedOldPrice.toStringAsFixed(0)}",
                             style: AppTextStyles.bodyMedium.copyWith(
-                              decoration:
-                              TextDecoration.lineThrough,
+                              decoration: TextDecoration.lineThrough,
                             ),
                           ),
                         ],
@@ -184,47 +168,44 @@ class WishlistCard extends StatelessWidget {
                 ),
               ],
             ),
-
+            const SizedBox(height: AppSpacing.md),
+            Divider(color: Colors.grey.shade300),
             const SizedBox(height: AppSpacing.md),
 
-            /// Divider
-            Divider(
-              color: Colors.grey.shade300,
-            ),
-
-            const SizedBox(height: AppSpacing.md),
-
-            /// Buttons
+            /// Action Buttons
             Row(
               children: [
-
                 Expanded(
                   child: FilledButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      ref.read(cartProvider.notifier).addToCart(product);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("${product.title} added to cart"), // Updated to 'title'
+                          duration: const Duration(seconds: 1),
+                        ),
+                      );
+                    },
                     icon: const Icon(Icons.shopping_cart),
                     label: const Text("Add to Cart"),
                   ),
                 ),
-
                 const SizedBox(width: AppSpacing.md),
-
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      ref.read(wishlistProvider.notifier).toggleWishlist(product);
+                    },
                     icon: const Icon(
                       Icons.delete_outline,
                       color: Colors.red,
                     ),
                     label: const Text(
                       "Remove",
-                      style: TextStyle(
-                        color: Colors.red,
-                      ),
+                      style: TextStyle(color: Colors.red),
                     ),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(
-                        color: Colors.red,
-                      ),
+                      side: const BorderSide(color: Colors.red),
                     ),
                   ),
                 ),

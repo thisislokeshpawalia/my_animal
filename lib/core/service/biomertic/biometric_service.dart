@@ -1,3 +1,4 @@
+import "package:flutter/foundation.dart";
 import 'package:local_auth/local_auth.dart';
 
 
@@ -27,7 +28,7 @@ class BiometricService {
 
       if(!isSupported || !canCheck){
 
-        print("Biometric not supported");
+        debugPrint("Biometric not supported");
 
         return false;
 
@@ -42,7 +43,7 @@ class BiometricService {
 
 
 
-      print(
+      debugPrint(
         "Available biometrics: $biometrics",
       );
 
@@ -50,7 +51,7 @@ class BiometricService {
 
       if(biometrics.isEmpty){
 
-        print(
+        debugPrint(
           "No fingerprint/face registered",
         );
 
@@ -80,7 +81,7 @@ class BiometricService {
 
 
 
-      print(
+      debugPrint(
         "Authentication result: $result",
       );
 
@@ -92,7 +93,7 @@ class BiometricService {
 
     catch(e){
 
-      print(
+      debugPrint(
         "Biometric error: $e",
       );
 

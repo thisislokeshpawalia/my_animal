@@ -59,7 +59,7 @@ class _SplashPageState extends State<SplashPage>
     if (!mounted) return;
 
     if (isLoggedIn) {
-      context.go(AppRoutes.main);
+      context.go(AppRoutes.home);
     } else {
       context.go(AppRoutes.login);
     }
@@ -101,12 +101,12 @@ class _SplashPageState extends State<SplashPage>
                           child: Container(
                             padding: const EdgeInsets.all(28),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(.55),
+                              color: Colors.white.withValues(alpha: .55),
                               borderRadius: BorderRadius.circular(28),
                               border: Border.all(color: Colors.white),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.green.withOpacity(.15),
+                                  color: Colors.green.withValues(alpha: .15),
                                   blurRadius: 30,
                                   offset: const Offset(0, 15),
                                 ),

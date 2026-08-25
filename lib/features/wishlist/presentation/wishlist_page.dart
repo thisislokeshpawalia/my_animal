@@ -1,20 +1,24 @@
+// lib/features/wishlist/presentation/wishlist_page.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_color.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_style.dart';
-import '../data/mock_wishlist.dart';
+import '../providers/wishlist_provider.dart';
 import '../widgets/empty_wishlist.dart';
 import '../widgets/wishlist_card.dart';
 
-class WishlistPage extends StatelessWidget {
+class WishlistPage extends ConsumerWidget {
   const WishlistPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Realtime live user reactive data streams subscription point
+    final savedProducts = ref.watch(wishlistProvider);
+
     return Scaffold(
       backgroundColor: AppColors.background,
-
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
@@ -24,11 +28,9 @@ class WishlistPage extends StatelessWidget {
           style: AppTextStyles.heading2,
         ),
       ),
-
       body: Column(
         children: [
-
-          /// Search
+          /// Search Bar
           Padding(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.md,
@@ -47,43 +49,40 @@ class WishlistPage extends StatelessWidget {
             ),
           ),
 
-          /// Section Title
+          /// Section Title Readout
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.md,
             ),
             child: Row(
               children: [
-
                 Text(
                   "Saved Products",
                   style: AppTextStyles.title,
                 ),
-
                 const Spacer(),
-
                 Text(
-                  "${mockWishlist.length} Items",
+                  "${savedProducts.length} Items",
                   style: AppTextStyles.caption,
                 ),
               ],
             ),
           ),
-
           const SizedBox(height: AppSpacing.md),
 
-          /// Wishlist
+          /// Conditional Content rendering layer switch block
           Expanded(
-            child: mockWishlist.isEmpty
+            child: savedProducts.isEmpty
                 ? const EmptyWishlist()
                 : ListView.builder(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.md,
               ),
-              itemCount: mockWishlist.length,
+              itemCount: savedProducts.length,
               itemBuilder: (context, index) {
+                // Dynamically binds standard product schemas directly to your UI display card blocks
                 return WishlistCard(
-                  product: mockWishlist[index],
+                  product: savedProducts[index],
                 );
               },
             ),

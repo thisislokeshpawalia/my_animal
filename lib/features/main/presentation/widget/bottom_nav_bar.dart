@@ -1,53 +1,72 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_color.dart';
-import '../../providers/bottom_nav_provider.dart';
+import '../../../cart/provider/cart_provider.dart';
 
 class AppBottomNavBar extends ConsumerWidget {
-  const AppBottomNavBar({super.key});
+  final StatefulNavigationShell navigationShell;
+
+  const AppBottomNavBar({super.key, required this.navigationShell});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentIndex = ref.watch(bottomNavProvider);
+    final cartItems = ref.watch(cartProvider);
+
+    final cartCount = cartItems.fold<int>(
+      0,
+          (sum, item) => sum + item.quantity,
+    );
 
     return NavigationBar(
-      selectedIndex: currentIndex,
+      selectedIndex: navigationShell.currentIndex,
 
       onDestinationSelected: (index) {
-        ref.read(bottomNavProvider.notifier).changeTab(index);
+        navigationShell.goBranch(
+          index,
+          initialLocation: index == navigationShell.currentIndex,
+        );
       },
 
       backgroundColor: Colors.white,
 
       indicatorColor: AppColors.primary.withValues(alpha: 0.15),
 
-      destinations: const [
-        NavigationDestination(
+      destinations: [
+        const NavigationDestination(
           icon: Icon(Icons.home_outlined),
           selectedIcon: Icon(Icons.home),
           label: "Home",
         ),
 
-        NavigationDestination(
+        const NavigationDestination(
           icon: Icon(Icons.grid_view_outlined),
           selectedIcon: Icon(Icons.grid_view),
           label: "Categories",
         ),
 
         NavigationDestination(
-          icon: Icon(Icons.shopping_cart_outlined),
-          selectedIcon: Icon(Icons.shopping_cart),
+          icon: Badge(
+            isLabelVisible: cartCount > 0,
+            label: Text(cartCount.toString()),
+            child: const Icon(Icons.shopping_cart_outlined),
+          ),
+          selectedIcon: Badge(
+            isLabelVisible: cartCount > 0,
+            label: Text(cartCount.toString()),
+            child: const Icon(Icons.shopping_cart),
+          ),
           label: "Cart",
         ),
 
-        NavigationDestination(
+        const NavigationDestination(
           icon: Icon(Icons.receipt_long_outlined),
           selectedIcon: Icon(Icons.receipt_long),
           label: "Orders",
         ),
 
-        NavigationDestination(
+        const NavigationDestination(
           icon: Icon(Icons.person_outline),
           selectedIcon: Icon(Icons.person),
           label: "Profile",

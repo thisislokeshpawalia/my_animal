@@ -1,3 +1,4 @@
+import "package:flutter/foundation.dart";
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -39,11 +40,11 @@ class FirebaseAuthService {
 
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
-      print("Firebase Auth Error: ${e.code}");
-      print(e.message);
+      debugPrint("Firebase Auth Error: ${e.code}");
+      debugPrint(e.message);
       return null;
     } catch (e) {
-      print("Google Sign-In Error: $e");
+      debugPrint("Google Sign-In Error: $e");
       return null;
     }
   }

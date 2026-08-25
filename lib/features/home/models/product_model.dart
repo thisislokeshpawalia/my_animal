@@ -1,22 +1,36 @@
-class ProductModel {
-  final String id;
-  final String name;
-  final String image;
+class Product {
+  final int id;
+  final String title;
   final double price;
-  final double oldPrice;
+  final String description;
+  final String category;
+  final String image;
   final double rating;
-  final bool isFavourite;
+  final int ratingCount;
 
-  const ProductModel({
+  Product({
     required this.id,
-    required this.name,
-    required this.image,
+    required this.title,
     required this.price,
-    required this.oldPrice,
+    required this.description,
+    required this.category,
+    required this.image,
     required this.rating,
-    this.isFavourite = false,
+    required this.ratingCount,
   });
 
-  double get discountPercentage =>
-      ((oldPrice - price) / oldPrice * 100);
+  factory Product.fromJson(Map<String, dynamic> json) {
+    final ratingData = json['rating'] as Map<String, dynamic>?;
+
+    return Product(
+      id: json['id'] as int,
+      title: json['title'] as String? ?? '',
+      price: (json['price'] as num).toDouble(),
+      description: json['description'] as String? ?? '',
+      category: json['category'] as String? ?? '',
+      image: json['image'] as String? ?? '',
+      rating: (ratingData?['rate'] as num?)?.toDouble() ?? 0.0,
+      ratingCount: ratingData?['count'] as int? ?? 0,
+    );
+  }
 }

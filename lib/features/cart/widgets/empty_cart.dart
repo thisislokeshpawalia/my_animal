@@ -26,7 +26,7 @@ class EmptyCart extends StatelessWidget {
             height: 170,
             width: 170,
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(.08),
+              color: AppColors.primary.withValues(alpha: .08),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -182,7 +182,7 @@ class _CategoryItem extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 30,
-            backgroundColor: AppColors.primary.withOpacity(.1),
+            backgroundColor: AppColors.primary.withValues(alpha: .1),
             child: Icon(
               icon,
               color: AppColors.primary,

@@ -59,14 +59,14 @@ class LoginBody extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(26),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(.55),
+                          color: Colors.white.withValues(alpha: .55),
                           borderRadius: BorderRadius.circular(28),
                           border: Border.all(
                             color: Colors.white,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.green.withOpacity(.12),
+                              color: Colors.green.withValues(alpha: .12),
                               blurRadius: 30,
                               offset: const Offset(0, 15),
                             ),
