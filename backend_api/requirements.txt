@@ -1,6 +1,8 @@
 fastapi
 uvicorn
-sqlalchemy
+gunicorn
+motor
+python-dotenv
 firebase-admin
 pydantic
 pydantic-settings

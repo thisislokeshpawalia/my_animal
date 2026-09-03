@@ -1,15 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.core.db import engine, Base
+from app.core.db import connect_to_mongo, close_mongo_connection
 from app.api import products, categories, cart, orders, vendors
-from app.models import domain
 
 app = FastAPI(title="My Animal API")
 
 @app.on_event("startup")
-def startup_event():
-    # Create SQLite tables
-    Base.metadata.create_all(bind=engine)
+async def startup_event():
+    await connect_to_mongo()
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    await close_mongo_connection()
 
 app.add_middleware(
     CORSMiddleware,

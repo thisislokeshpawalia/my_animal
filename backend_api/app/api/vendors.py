@@ -1,8 +1,7 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from app.core.db import get_db
-from app.models.domain import VendorModel
+from fastapi import APIRouter
+import os
 from pydantic import BaseModel
+from app.core.db import db
 
 class VendorCreate(BaseModel):
     uid: str
@@ -12,13 +11,14 @@ class VendorCreate(BaseModel):
 router = APIRouter()
 
 @router.get("/")
-def get_vendors(db: Session = Depends(get_db)):
-    return db.query(VendorModel).all()
+async def get_vendors():
+    cursor = db.client[os.getenv("DATABASE_NAME", "my_animal")]["vendors"].find({})
+    vendors = await cursor.to_list(length=100)
+    for v in vendors:
+        v["_id"] = str(v["_id"])
+    return vendors
 
 @router.post("/register")
-def register_vendor(vendor: VendorCreate, db: Session = Depends(get_db)):
-    db_vendor = VendorModel(**vendor.dict())
-    db.add(db_vendor)
-    db.commit()
-    db.refresh(db_vendor)
-    return db_vendor
+async def register_vendor(vendor: VendorCreate):
+    result = await db.client[os.getenv("DATABASE_NAME", "my_animal")]["vendors"].insert_one(vendor.dict())
+    return {"_id": str(result.inserted_id), **vendor.dict()}

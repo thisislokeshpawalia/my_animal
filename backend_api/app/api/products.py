@@ -1,8 +1,7 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from app.core.db import get_db
-from app.models.domain import ProductModel
+from fastapi import APIRouter
+import os
 from pydantic import BaseModel
+from app.core.db import db
 
 class ProductCreate(BaseModel):
     title: str
@@ -15,14 +14,14 @@ class ProductCreate(BaseModel):
 router = APIRouter()
 
 @router.get("/")
-def get_products(db: Session = Depends(get_db)):
-    products = db.query(ProductModel).all()
+async def get_products():
+    cursor = db.client[os.getenv("DATABASE_NAME", "my_animal")]["products"].find({})
+    products = await cursor.to_list(length=100)
+    for p in products:
+        p["_id"] = str(p["_id"])
     return products
 
 @router.post("/")
-def create_product(product: ProductCreate, db: Session = Depends(get_db)):
-    db_product = ProductModel(**product.dict())
-    db.add(db_product)
-    db.commit()
-    db.refresh(db_product)
-    return db_product
+async def create_product(product: ProductCreate):
+    result = await db.client[os.getenv("DATABASE_NAME", "my_animal")]["products"].insert_one(product.dict())
+    return {"_id": str(result.inserted_id), **product.dict()}

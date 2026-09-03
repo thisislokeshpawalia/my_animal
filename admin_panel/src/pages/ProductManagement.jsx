@@ -5,7 +5,8 @@ export default function ProductManagement() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('http://localhost:8001/api/products')
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8001/api';
+    fetch(`${apiUrl}/products`)
       .then(res => res.json())
       .then(data => {
         setProducts(data)

@@ -1,21 +1,24 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+import os
+from motor.motor_asyncio import AsyncIOMotorClient
+from dotenv import load_dotenv
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./my_animal.db"
-# If we were using Postgres, it might be something like:
-# SQLALCHEMY_DATABASE_URL = "postgresql://user:password@postgresserver/db"
+load_dotenv()
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
+DATABASE_NAME = os.getenv("DATABASE_NAME", "my_animal")
 
-Base = declarative_base()
+class DataBase:
+    client: AsyncIOMotorClient = None
 
-def get_db():
-    db = SessionLocal()
+db = DataBase()
+
+async def connect_to_mongo():
     try:
-        yield db
-    finally:
-        db.close()
+        db.client = AsyncIOMotorClient(MONGODB_URL)
+        print("Connected to MongoDB")
+    except Exception as e:
+        print(f"Error connecting to MongoDB: {e}")
+
+async def close_mongo_connection():
+    if db.client:
+        db.client.close()
