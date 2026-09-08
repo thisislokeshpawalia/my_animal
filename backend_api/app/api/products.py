@@ -13,9 +13,17 @@ class ProductCreate(BaseModel):
 
 router = APIRouter()
 
+from typing import Optional
+
 @router.get("/")
-async def get_products():
-    cursor = db.client[os.getenv("DATABASE_NAME", "my_animal")]["products"].find({})
+async def get_products(q: Optional[str] = None, category: Optional[str] = None):
+    query = {}
+    if q:
+        query["title"] = {"$regex": q, "$options": "i"}
+    if category:
+        query["category"] = category
+        
+    cursor = db.client[os.getenv("DATABASE_NAME", "my_animal")]["products"].find(query)
     products = await cursor.to_list(length=100)
     for p in products:
         p["_id"] = str(p["_id"])
