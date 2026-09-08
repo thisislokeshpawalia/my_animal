@@ -4,8 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiClient {
   static String getBaseUrl() {
-    // Using local network IP since testing on a physical device
-    return 'http://192.168.1.58:8000/api';
+    // Railway Production URL
+    return 'https://myanimal-production.up.railway.app';
   }
 
   late final Dio _dio;
