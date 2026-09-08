@@ -6,6 +6,9 @@ import Dashboard from './pages/Dashboard'
 import UserManagement from './pages/UserManagement'
 import ProductManagement from './pages/ProductManagement'
 import OrderManagement from './pages/OrderManagement'
+import VendorManagement from './pages/VendorManagement'
+import ReviewManagement from './pages/ReviewManagement'
+import { MessageSquare } from 'lucide-react'
 
 function Sidebar() {
   const location = useLocation();
@@ -15,6 +18,8 @@ function Sidebar() {
     { path: '/users', label: 'Users', icon: Users },
     { path: '/products', label: 'Products', icon: ShoppingBag },
     { path: '/orders', label: 'Orders', icon: Package },
+    { path: '/vendors', label: 'Vendors', icon: Settings },
+    { path: '/reviews', label: 'Reviews', icon: MessageSquare },
   ];
 
   return (
@@ -74,6 +79,8 @@ function App() {
               <Route path="/users" element={<UserManagement />} />
               <Route path="/products" element={<ProductManagement />} />
               <Route path="/orders" element={<OrderManagement />} />
+              <Route path="/vendors" element={<VendorManagement />} />
+              <Route path="/reviews" element={<ReviewManagement />} />
             </Routes>
           </div>
         </main>
