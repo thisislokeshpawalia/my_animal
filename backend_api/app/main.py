@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.db import connect_to_mongo, close_mongo_connection
-from app.api import products, categories, cart, orders, vendors, auth
+from app.api import products, categories, cart, orders, vendors, auth, pets, vets
 
 app = FastAPI(title="My Animal API")
 
@@ -31,3 +31,5 @@ app.include_router(categories.router, prefix="/api/categories", tags=["categorie
 app.include_router(cart.router, prefix="/api/cart", tags=["cart"])
 app.include_router(orders.router, prefix="/api/orders", tags=["orders"])
 app.include_router(vendors.router, prefix="/api/vendors", tags=["vendors"])
+app.include_router(pets.router, prefix="/api/pets", tags=["pets"])
+app.include_router(vets.router, prefix="/api/vets", tags=["vets"])
