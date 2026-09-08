@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiClient {
   static String getBaseUrl() {
     // Railway Production URL
-    return 'https://myanimal-production.up.railway.app';
+    return 'https://myanimal-production.up.railway.app/api';
   }
 
   late final Dio _dio;

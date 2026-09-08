@@ -266,15 +266,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // --------------------------------------------------
-      // ADMIN DASHBOARD
-      // --------------------------------------------------
-      GoRoute(
-        path: AppRoutes.adminDashboard,
-        builder: (context, state) {
-          return const AdminDashboardPage();
-        },
-      ),
     ],
   );
 });

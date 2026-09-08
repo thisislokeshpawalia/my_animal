@@ -213,12 +213,6 @@ class _ProfilePageState extends State<ProfilePage> {
               title: "Account",
               children: [
                 ProfileTile(
-                  icon: Icons.admin_panel_settings,
-                  title: "Admin Dashboard",
-                  onTap: () => context.push(AppRoutes.adminDashboard),
-                ),
-                const Divider(height: 1),
-                ProfileTile(
                   icon: Icons.person_outline,
                   title: "Personal Information",
                   onTap: () => context.push(AppRoutes.updateProfile),

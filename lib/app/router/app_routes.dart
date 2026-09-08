@@ -17,8 +17,7 @@ class AppRoutes {
   static const checkout = '/checkout';
   static const String dummyPayment = '/dummy-payment';
   
-  // Admin Routes
-  static const String adminDashboard = '/admin';
+  // Removed Admin Routes
 
   static const updateProfile = '/updateProfile';
   static const orderTracking = '/orderTracking';
