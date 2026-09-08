@@ -28,7 +28,9 @@ class _VendorAddProductPageState extends ConsumerState<VendorAddProductPage> {
     super.dispose();
   }
 
-  void _submit() {
+  bool _isLoading = false;
+
+  Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
       if (!_imageSelected) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -37,25 +39,36 @@ class _VendorAddProductPageState extends ConsumerState<VendorAddProductPage> {
         return;
       }
 
-      final newProduct = VendorProductModel(
-        id: Random().nextInt(10000).toString(),
-        name: _nameController.text.trim(),
-        price: double.parse(_priceController.text.trim()),
-        description: _descController.text.trim(),
-        category: _selectedCategory,
-        // Provide a random placeholder image since this is a mockup
-        imageUrl: _selectedCategory == 'Animal' 
-            ? 'https://images.unsplash.com/photo-1543466835-00a7907e9de1'
-            : 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97',
-      );
+      setState(() => _isLoading = true);
 
-      ref.read(vendorDashboardControllerProvider.notifier).addProduct(newProduct);
+      try {
+        final newProduct = VendorProductModel(
+          id: Random().nextInt(10000).toString(),
+          name: _nameController.text.trim(),
+          price: double.parse(_priceController.text.trim()),
+          description: _descController.text.trim(),
+          category: _selectedCategory,
+          imageUrl: _selectedCategory == 'Animal' 
+              ? 'https://images.unsplash.com/photo-1543466835-00a7907e9de1'
+              : 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97',
+        );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Product added successfully!')),
-      );
+        await ref.read(vendorDashboardControllerProvider.notifier).addProduct(newProduct);
 
-      if (context.canPop()) context.pop();
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Product added successfully!')),
+        );
+
+        if (context.canPop()) context.pop();
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add product: $e')),
+        );
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
     }
   }
 

@@ -50,9 +50,10 @@ class _HomePageState extends ConsumerState<HomePage> {
     final productsAsyncValue = ref.watch(productsProvider);
     
     // Watch the vendor products
-    final vendorProducts = ref.watch(vendorDashboardControllerProvider);
+    final vendorProductsState = ref.watch(vendorDashboardControllerProvider);
+    final vendorProducts = vendorProductsState.value ?? [];
     final mappedVendorProducts = vendorProducts.map((vp) => Product(
-      id: int.tryParse(vp.id) ?? 9999,
+      id: vp.id,
       title: vp.name,
       price: vp.price,
       description: vp.description,

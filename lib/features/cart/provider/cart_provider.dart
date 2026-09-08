@@ -67,7 +67,7 @@ class CartNotifier
       ) {
     // Create Product from order history
     final product = Product(
-      id: orderItem.productName.hashCode,
+      id: orderItem.productName.hashCode.toString(),
       title: orderItem.productName,
       price: orderItem.price,
       image: orderItem.image,
@@ -119,7 +119,7 @@ class CartNotifier
   // ============================================
 
   void decrementQuantity(
-      int productId,
+      String productId,
       ) {
     state = state
         .map(
@@ -146,7 +146,7 @@ class CartNotifier
   // ============================================
 
   void removeFromCart(
-      int productId,
+      String productId,
       ) {
     state = state
         .where(

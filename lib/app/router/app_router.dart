@@ -31,6 +31,7 @@ import '../../features/vendor/presentation/vendor_dashboard_page.dart';
 import '../../features/vendor/presentation/vendor_products_page.dart';
 import '../../features/vendor/presentation/vendor_add_product_page.dart';
 import '../../features/orders/presentation/delhivery_tracking_page.dart';
+import '../../features/admin/presentation/admin_dashboard_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final analytics = FirebaseAnalytics.instance;
@@ -262,6 +263,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.delhiveryTracking,
         builder: (context, state) {
           return const DelhiveryTrackingPage();
+        },
+      ),
+
+      // --------------------------------------------------
+      // ADMIN DASHBOARD
+      // --------------------------------------------------
+      GoRoute(
+        path: AppRoutes.adminDashboard,
+        builder: (context, state) {
+          return const AdminDashboardPage();
         },
       ),
     ],

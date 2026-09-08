@@ -1,33 +1,30 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/vendor_product_model.dart';
+import '../data/vendor_repository.dart';
 
 final vendorDashboardControllerProvider =
-    StateNotifierProvider<VendorDashboardController, List<VendorProductModel>>((ref) {
+    AsyncNotifierProvider<VendorDashboardController, List<VendorProductModel>>(() {
   return VendorDashboardController();
 });
 
-class VendorDashboardController extends StateNotifier<List<VendorProductModel>> {
-  VendorDashboardController() : super([
-    // Dummy initial products
-    VendorProductModel(
-      id: '1',
-      name: 'Golden Retriever Puppy',
-      price: 15000.0,
-      description: 'Healthy and playful Golden Retriever puppy.',
-      category: 'Animal',
-      imageUrl: 'https://images.unsplash.com/photo-1633722715463-d30f4f325e24',
-    ),
-    VendorProductModel(
-      id: '2',
-      name: 'Premium Dog Food 5kg',
-      price: 2500.0,
-      description: 'High-quality dog food for all breeds.',
-      category: 'Accessory',
-      imageUrl: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee',
-    ),
-  ]);
+class VendorDashboardController extends AsyncNotifier<List<VendorProductModel>> {
+  @override
+  Future<List<VendorProductModel>> build() async {
+    return _fetchProducts();
+  }
 
-  void addProduct(VendorProductModel product) {
-    state = [...state, product];
+  Future<List<VendorProductModel>> _fetchProducts() async {
+    final repository = ref.read(vendorRepositoryProvider);
+    return await repository.getProducts();
+  }
+
+  Future<void> addProduct(VendorProductModel product) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final repository = ref.read(vendorRepositoryProvider);
+      final newProduct = await repository.createProduct(product);
+      final currentProducts = state.value ?? [];
+      return [...currentProducts, newProduct];
+    });
   }
 }

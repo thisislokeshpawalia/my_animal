@@ -9,11 +9,18 @@ import '../../../core/service/invoice/invoice_service.dart';
 
 import '../model/order_model.dart';
 import '../model/order_status.dart';
+import '../data/order_repository.dart';
+
+final orderRepositoryProvider = Provider<OrderRepository>((ref) {
+  return OrderRepository();
+});
 
 class OrderNotifier
     extends StateNotifier<List<OrderModel>> {
+  
+  final Ref ref;
 
-  OrderNotifier() : super([]) {
+  OrderNotifier(this.ref) : super([]) {
     _loadOrdersLocally();
   }
 
@@ -213,6 +220,15 @@ class OrderNotifier
     await _saveOrdersLocally(
       state,
     );
+
+    // Call API to create order
+    try {
+      final repository = ref.read(orderRepositoryProvider);
+      await repository.createOrder(newOrder.toJson());
+      debugPrint('Order successfully sent to backend.');
+    } catch (e) {
+      debugPrint('Failed to send order to backend: $e');
+    }
 
     debugPrint(
       'Customer email saved with order: '
@@ -425,6 +441,6 @@ StateNotifierProvider<
     OrderNotifier,
     List<OrderModel>>(
       (ref) {
-    return OrderNotifier();
+    return OrderNotifier(ref);
   },
 );

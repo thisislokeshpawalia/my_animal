@@ -1,5 +1,5 @@
 class Product {
-  final int id;
+  final String id;
   final String title;
   final double price;
   final String description;
@@ -23,13 +23,13 @@ class Product {
     final ratingData = json['rating'] as Map<String, dynamic>?;
 
     return Product(
-      id: json['id'] as int,
+      id: json['_id'] ?? json['id']?.toString() ?? '',
       title: json['title'] as String? ?? '',
       price: (json['price'] as num).toDouble(),
       description: json['description'] as String? ?? '',
       category: json['category'] as String? ?? '',
       image: json['image'] as String? ?? '',
-      rating: (ratingData?['rate'] as num?)?.toDouble() ?? 0.0,
+      rating: (ratingData?['rate'] as num?)?.toDouble() ?? (ratingData?['average'] as num?)?.toDouble() ?? 0.0,
       ratingCount: ratingData?['count'] as int? ?? 0,
     );
   }

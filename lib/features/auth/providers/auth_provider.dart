@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../data/auth_repository.dart';
 
 enum AuthStatus {
   authenticated,
@@ -6,22 +7,46 @@ enum AuthStatus {
   loading,
 }
 
-class AuthNotifier extends Notifier<AuthStatus> {
+final authRepositoryProvider = Provider((ref) => AuthRepository());
+
+class AuthNotifier extends AsyncNotifier<AuthStatus> {
   @override
-  AuthStatus build() {
-    return AuthStatus.unauthenticated;
+  Future<AuthStatus> build() async {
+    return _checkAuthStatus();
   }
 
-  void login() {
-    state = AuthStatus.authenticated;
+  Future<AuthStatus> _checkAuthStatus() async {
+    final repo = ref.read(authRepositoryProvider);
+    final isAuth = await repo.isAuthenticated();
+    return isAuth ? AuthStatus.authenticated : AuthStatus.unauthenticated;
   }
 
-  void logout() {
-    state = AuthStatus.unauthenticated;
+  Future<void> login(String email, String password) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final repo = ref.read(authRepositoryProvider);
+      await repo.login(email, password);
+      return AuthStatus.authenticated;
+    });
+  }
+
+  Future<void> register(String email, String password, String name) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final repo = ref.read(authRepositoryProvider);
+      await repo.register(email, password, name);
+      return AuthStatus.authenticated;
+    });
+  }
+
+  Future<void> logout() async {
+    state = const AsyncValue.loading();
+    final repo = ref.read(authRepositoryProvider);
+    await repo.logout();
+    state = const AsyncValue.data(AuthStatus.unauthenticated);
   }
 }
 
-final authProvider =
-NotifierProvider<AuthNotifier, AuthStatus>(
+final authProvider = AsyncNotifierProvider<AuthNotifier, AuthStatus>(
   AuthNotifier.new,
 );

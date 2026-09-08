@@ -15,7 +15,11 @@ class AppRoutes {
   
   static const wishlist = '/wishlist';
   static const checkout = '/checkout';
-  static const dummyPayment = '/dummyPayment';
+  static const String dummyPayment = '/dummy-payment';
+  
+  // Admin Routes
+  static const String adminDashboard = '/admin';
+
   static const updateProfile = '/updateProfile';
   static const orderTracking = '/orderTracking';
   static const savedAddress = '/savedAddress';
