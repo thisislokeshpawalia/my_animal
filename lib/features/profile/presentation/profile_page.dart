@@ -218,6 +218,18 @@ class _ProfilePageState extends State<ProfilePage> {
                   onTap: () => context.push(AppRoutes.updateProfile),
                 ),
                 const Divider(height: 1),
+                ProfileTile(
+                  icon: Icons.pets,
+                  title: "My Pets",
+                  onTap: () => context.push(AppRoutes.petProfiles),
+                ),
+                const Divider(height: 1),
+                ProfileTile(
+                  icon: Icons.medical_services_outlined,
+                  title: "Book a Vet Consultation",
+                  onTap: () => context.push(AppRoutes.vetBooking),
+                ),
+                const Divider(height: 1),
                   Consumer(
                   builder: (context, ref, child) {
                     final vendorState = ref.watch(vendorRegistrationControllerProvider);

@@ -20,6 +20,8 @@ class AppRoutes {
   // Removed Admin Routes
 
   static const updateProfile = '/updateProfile';
+  static const petProfiles = '/petProfiles';
+  static const vetBooking = '/vetBooking';
   static const orderTracking = '/orderTracking';
   static const savedAddress = '/savedAddress';
   static const vendorRegistration = '/vendorRegistration';

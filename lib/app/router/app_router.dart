@@ -25,6 +25,8 @@ import '../../features/cart/presentation/checkout_page.dart';
 import '../../features/cart/presentation/dummy_payment_page.dart';
 import '../../features/orders/presentation/order_tracking_page.dart';
 import '../../features/profile/presentation/update_profile_page.dart';
+import '../../features/pets/presentation/pet_profiles_page.dart';
+import '../../features/vets/presentation/vet_booking_page.dart';
 import '../../features/vendor/presentation/vendor_registration_page.dart';
 import '../../features/vendor/presentation/vendor_details_page.dart';
 import '../../features/vendor/presentation/vendor_dashboard_page.dart';
@@ -265,7 +267,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           return const DelhiveryTrackingPage();
         },
       ),
-
+      GoRoute(
+        path: AppRoutes.petProfiles,
+        builder: (context, state) {
+          return const PetProfilesPage();
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.vetBooking,
+        builder: (context, state) {
+          return const VetBookingPage();
+        },
+      ),
     ],
   );
 });
