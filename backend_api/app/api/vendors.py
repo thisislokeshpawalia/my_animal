@@ -22,3 +22,16 @@ async def get_vendors():
 async def register_vendor(vendor: VendorCreate):
     result = await db.client[os.getenv("DATABASE_NAME", "my_animal")]["vendors"].insert_one(vendor.dict())
     return {"_id": str(result.inserted_id), **vendor.dict()}
+
+from pydantic import BaseModel
+class VendorStatusUpdate(BaseModel):
+    status: str
+
+@router.put("/{vendor_id}/status")
+async def update_vendor_status(vendor_id: str, update: VendorStatusUpdate):
+    from bson.objectid import ObjectId
+    await db.client[os.getenv("DATABASE_NAME", "my_animal")]["vendors"].update_one(
+        {"_id": ObjectId(vendor_id)},
+        {"$set": {"status": update.status}}
+    )
+    return {"message": f"Vendor status updated to {update.status}"}
