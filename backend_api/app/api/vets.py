@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 import os
 from bson import ObjectId
 from app.core.db import db
-from app.models.schemas import VetConsultationBase
+from app.models.schemas import VetConsultationBase, VetBase
 from typing import Literal
 
 router = APIRouter()
@@ -18,6 +18,12 @@ async def get_vets():
     for v in vets:
         v["_id"] = str(v["_id"])
     return vets
+
+@router.post("/")
+async def create_vet(vet: VetBase):
+    collection = db.client[os.getenv("DATABASE_NAME", "my_animal")]["vets"]
+    result = await collection.insert_one(vet.dict())
+    return {"_id": str(result.inserted_id), **vet.dict()}
 
 @router.post("/consultations/")
 async def book_consultation(consultation: VetConsultationBase):
