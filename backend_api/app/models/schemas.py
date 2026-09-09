@@ -74,6 +74,8 @@ class OrderBase(BaseModel):
     contactNumber: str = ""
     deliveryAddress: str = ""
     customerEmail: str = ""
+    is_subscription: bool = False
+    frequency: str = "" # weekly, monthly, bi-monthly
 
 class Order(OrderBase):
     pass
