@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 import os
+import re
 from pydantic import BaseModel
 from app.core.db import db
 
@@ -25,6 +26,36 @@ async def get_products(q: Optional[str] = None, category: Optional[str] = None):
         
     cursor = db.client[os.getenv("DATABASE_NAME", "my_animal")]["products"].find(query)
     products = await cursor.to_list(length=100)
+    for p in products:
+        p["_id"] = str(p["_id"])
+    return products
+
+@router.get("/recommendations/{user_id}")
+async def get_product_recommendations(user_id: str):
+    pets_cursor = db.client[os.getenv("DATABASE_NAME", "my_animal")]["pets"].find({"owner_id": user_id})
+    pets = await pets_cursor.to_list(length=50)
+    
+    keywords = set()
+    for pet in pets:
+        if pet.get("species"):
+            keywords.add(pet["species"].lower())
+        if pet.get("breed"):
+            keywords.add(pet["breed"].lower())
+            
+    if keywords:
+        regex_pattern = "|".join([re.escape(k) for k in keywords])
+        query = {
+            "$or": [
+                {"title": {"$regex": regex_pattern, "$options": "i"}},
+                {"category": {"$regex": regex_pattern, "$options": "i"}},
+                {"description": {"$regex": regex_pattern, "$options": "i"}}
+            ]
+        }
+    else:
+        query = {}
+        
+    cursor = db.client[os.getenv("DATABASE_NAME", "my_animal")]["products"].find(query).limit(10)
+    products = await cursor.to_list(length=10)
     for p in products:
         p["_id"] = str(p["_id"])
     return products
