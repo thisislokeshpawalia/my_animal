@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_color.dart';
 
+import 'package:go_router/go_router.dart';
+import '../../../../app/router/app_routes.dart';
+
 class HomeSearchBar extends StatelessWidget {
   final VoidCallback? onTap;
 
@@ -13,7 +16,7 @@ class HomeSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: onTap ?? () => context.push(AppRoutes.search),
       child: Container(
         height: 56,
         padding: const EdgeInsets.symmetric(horizontal: 16),

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../pets/providers/pet_controller.dart';
 import '../providers/vet_controller.dart';
+import '../models/vet_model.dart';
 
 class VetBookingPage extends ConsumerStatefulWidget {
-  const VetBookingPage({super.key});
+  final VetModel vet;
+  const VetBookingPage({super.key, required this.vet});
 
   @override
   ConsumerState<VetBookingPage> createState() => _VetBookingPageState();
@@ -20,7 +22,7 @@ class _VetBookingPageState extends ConsumerState<VetBookingPage> {
     final petsState = ref.watch(petControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Book Vet Consultation')),
+      appBar: AppBar(title: Text('Book with ${widget.vet.name}')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -91,9 +93,8 @@ class _VetBookingPageState extends ConsumerState<VetBookingPage> {
                           selectedDate!.year, selectedDate!.month, selectedDate!.day,
                           selectedTime!.hour, selectedTime!.minute,
                         );
-                        // Using a Mock Vet ID for now since we don't have a vet selection UI yet
                         ref.read(vetControllerProvider.notifier).bookConsultation(
-                          selectedPetId!, "mock_vet_123", dateTime,
+                          selectedPetId!, widget.vet.id, dateTime,
                         );
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Consultation Booked!")));
                         Navigator.pop(context);

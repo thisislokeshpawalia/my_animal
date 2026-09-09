@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/api_client.dart';
 import '../models/vet_consultation_model.dart';
+import '../models/vet_model.dart';
 
 final vetRepositoryProvider = Provider<VetRepository>((ref) {
   return VetRepository(ApiClient().instance);
@@ -22,6 +23,20 @@ class VetRepository {
       }
     } catch (e) {
       throw Exception('Failed to book consultation: $e');
+    }
+  }
+
+  Future<List<VetModel>> fetchVets() async {
+    try {
+      final response = await _dio.get('/vets/');
+      if (response.statusCode == 200) {
+        final List data = response.data;
+        return data.map((e) => VetModel.fromJson(e)).toList();
+      } else {
+        throw Exception('Failed to fetch vets');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch vets: $e');
     }
   }
 

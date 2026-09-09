@@ -6,10 +6,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/service/email/brevo_email_service.dart';
 import '../../../core/service/invoice/invoice_service.dart';
+import '../../../core/service/notification/local_notification_service.dart';
 
 import '../model/order_model.dart';
 import '../model/order_status.dart';
 import '../data/order_repository.dart';
+import 'dart:async';
 
 final orderRepositoryProvider = Provider<OrderRepository>((ref) {
   return OrderRepository();
@@ -19,6 +21,7 @@ class OrderNotifier
     extends StateNotifier<List<OrderModel>> {
   
   final Ref ref;
+  Timer? _pollingTimer;
 
   OrderNotifier(this.ref) : super([]) {
     _loadOrdersLocally();
@@ -26,6 +29,56 @@ class OrderNotifier
 
   static const String _storageKey =
       'saved_orders';
+
+  // ============================================================
+  // POLLING SYNC
+  // ============================================================
+
+  void startPolling() {
+    if (_pollingTimer != null && _pollingTimer!.isActive) return;
+    _pollingTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      syncOrdersWithBackend();
+    });
+  }
+
+  void stopPolling() {
+    _pollingTimer?.cancel();
+    _pollingTimer = null;
+  }
+
+  Future<void> syncOrdersWithBackend() async {
+    try {
+      final repository = ref.read(orderRepositoryProvider);
+      final backendOrders = await repository.getOrders();
+      
+      bool stateChanged = false;
+      final updatedState = state.map((localOrder) {
+        try {
+          final serverOrder = backendOrders.firstWhere((o) => o.id == localOrder.id);
+          if (serverOrder.status != localOrder.status) {
+            // Status changed! Fire notification
+            LocalNotificationService.showNotification(
+              id: localOrder.id.hashCode,
+              title: 'Order Status Updated',
+              body: 'Order #${localOrder.id} is now ${serverOrder.status.name.toUpperCase()}',
+            );
+            stateChanged = true;
+            return localOrder.copyWith(status: serverOrder.status);
+          }
+        } catch (e) {
+          // order not found on server
+        }
+        return localOrder;
+      }).toList();
+
+      if (stateChanged) {
+        state = updatedState;
+        _saveOrdersLocally(state);
+      }
+    } catch (e) {
+      debugPrint('Error syncing orders: $e');
+    }
+  }
 
   // ============================================================
   // LOAD ORDERS
@@ -120,6 +173,9 @@ class OrderNotifier
     required String contactNumber,
     required String deliveryAddress,
     required String customerEmail,
+    bool isSubscription = false,
+    String frequency = '',
+    int redeemPoints = 0,
   }) async {
     final now =
     DateTime.now();
@@ -202,6 +258,15 @@ class OrderNotifier
 
       customerEmail:
       customerEmail,
+
+      isSubscription:
+      isSubscription,
+
+      frequency:
+      frequency,
+
+      redeemPoints:
+      redeemPoints,
     );
 
     // ==========================================================

@@ -32,7 +32,7 @@ async def get_products(q: Optional[str] = None, category: Optional[str] = None):
 
 @router.get("/recommendations/{user_id}")
 async def get_product_recommendations(user_id: str):
-    pets_cursor = db.client[os.getenv("DATABASE_NAME", "my_animal")]["pets"].find({"owner_id": user_id})
+    pets_cursor = db.client[os.getenv("DATABASE_NAME", "my_animal")]["pets"].find({"user_id": user_id})
     pets = await pets_cursor.to_list(length=50)
     
     keywords = set()

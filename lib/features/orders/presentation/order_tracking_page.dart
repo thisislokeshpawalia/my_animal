@@ -24,6 +24,20 @@ class OrderTrackingPage extends ConsumerStatefulWidget {
 class _OrderTrackingPageState extends ConsumerState<OrderTrackingPage> {
   bool _isGeneratingInvoice = false;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(orderProvider.notifier).startPolling();
+    });
+  }
+
+  @override
+  void dispose() {
+    ref.read(orderProvider.notifier).stopPolling();
+    super.dispose();
+  }
+
   // ============================================================
   // GENERATE INVOICE & SHOW OPTIONS DIALOG
   // ============================================================

@@ -12,10 +12,16 @@ import '../../provider/checkout_provider.dart';
 
 class PaymentBar extends ConsumerStatefulWidget {
   final double grandTotal;
+  final bool isSubscription;
+  final String frequency;
+  final int redeemPoints;
 
   const PaymentBar({
     super.key,
     required this.grandTotal,
+    this.isSubscription = false,
+    this.frequency = '',
+    this.redeemPoints = 0,
   });
 
   @override
@@ -299,6 +305,9 @@ class _PaymentBarState extends ConsumerState<PaymentBar> {
         finalAddress.fullAddress,
         customerEmail:
         customerEmail,
+        isSubscription: widget.isSubscription,
+        frequency: widget.frequency,
+        redeemPoints: widget.redeemPoints,
       );
 
       debugPrint(

@@ -27,13 +27,17 @@ import '../../features/orders/presentation/order_tracking_page.dart';
 import '../../features/profile/presentation/update_profile_page.dart';
 import '../../features/pets/presentation/pet_profiles_page.dart';
 import '../../features/vets/presentation/vet_booking_page.dart';
+import '../../features/vets/presentation/vet_list_page.dart';
+import '../../features/vets/models/vet_model.dart';
 import '../../features/vendor/presentation/vendor_registration_page.dart';
 import '../../features/vendor/presentation/vendor_details_page.dart';
 import '../../features/vendor/presentation/vendor_dashboard_page.dart';
 import '../../features/vendor/presentation/vendor_products_page.dart';
 import '../../features/vendor/presentation/vendor_add_product_page.dart';
 import '../../features/orders/presentation/delhivery_tracking_page.dart';
-import '../../features/admin/presentation/admin_dashboard_page.dart';
+import '../../features/search/presentation/search_page.dart';
+import '../../features/profile/presentation/my_subscriptions_page.dart';
+// Admin imports removed
 
 final routerProvider = Provider<GoRouter>((ref) {
   final analytics = FirebaseAnalytics.instance;
@@ -274,9 +278,29 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        path: AppRoutes.vetList,
+        builder: (context, state) {
+          return const VetListPage();
+        },
+      ),
+      GoRoute(
         path: AppRoutes.vetBooking,
         builder: (context, state) {
-          return const VetBookingPage();
+          final vet = state.extra as VetModel;
+          return VetBookingPage(vet: vet);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.search,
+        builder: (context, state) {
+          final category = state.extra as String?;
+          return SearchPage(initialCategory: category);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.mySubscriptions,
+        builder: (context, state) {
+          return const MySubscriptionsPage();
         },
       ),
     ],

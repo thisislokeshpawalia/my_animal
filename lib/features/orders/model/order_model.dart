@@ -47,6 +47,9 @@ class OrderModel {
 
   // Customer email for Brevo
   final String customerEmail;
+  final bool isSubscription;
+  final String frequency;
+  final int redeemPoints;
 
   const OrderModel({
     required this.id,
@@ -59,6 +62,9 @@ class OrderModel {
     required this.contactNumber,
     required this.deliveryAddress,
     required this.customerEmail,
+    this.isSubscription = false,
+    this.frequency = '',
+    this.redeemPoints = 0,
   });
 
   OrderModel copyWith({
@@ -72,6 +78,9 @@ class OrderModel {
     String? contactNumber,
     String? deliveryAddress,
     String? customerEmail,
+    bool? isSubscription,
+    String? frequency,
+    int? redeemPoints,
   }) {
     return OrderModel(
       id: id ?? this.id,
@@ -84,6 +93,9 @@ class OrderModel {
       contactNumber: contactNumber ?? this.contactNumber,
       deliveryAddress: deliveryAddress ?? this.deliveryAddress,
       customerEmail: customerEmail ?? this.customerEmail,
+      isSubscription: isSubscription ?? this.isSubscription,
+      frequency: frequency ?? this.frequency,
+      redeemPoints: redeemPoints ?? this.redeemPoints,
     );
   }
 
@@ -99,6 +111,9 @@ class OrderModel {
       'contactNumber': contactNumber,
       'deliveryAddress': deliveryAddress,
       'customerEmail': customerEmail,
+      'is_subscription': isSubscription,
+      'frequency': frequency,
+      'redeem_points': redeemPoints,
     };
   }
 
@@ -126,6 +141,9 @@ class OrderModel {
       contactNumber: json['contactNumber'] as String? ?? '',
       deliveryAddress: json['deliveryAddress'] as String? ?? '',
       customerEmail: json['customerEmail'] as String? ?? '',
+      isSubscription: json['is_subscription'] as bool? ?? false,
+      frequency: json['frequency'] as String? ?? '',
+      redeemPoints: (json['redeem_points'] as num?)?.toInt() ?? 0,
     );
   }
 }

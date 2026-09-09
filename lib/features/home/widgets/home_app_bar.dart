@@ -8,7 +8,7 @@ import '../../../core/service/location/address_provider.dart';
 
 class HomeAppBar extends ConsumerWidget {
   final String userName;
-  final ImageProvider profileImageProvider;
+  final ImageProvider? profileImageProvider;
   final VoidCallback onNotificationTap;
   final VoidCallback onWishlistTap;
   final VoidCallback onProfileTap;
@@ -154,10 +154,15 @@ class HomeAppBar extends ConsumerWidget {
             // Profile
             GestureDetector(
               onTap: onProfileTap,
-              child: CircleAvatar(
-                radius: 20,
-                backgroundImage: profileImageProvider,
-              ),
+              child: profileImageProvider != null 
+                ? CircleAvatar(
+                    radius: 20,
+                    backgroundImage: profileImageProvider,
+                  )
+                : const CircleAvatar(
+                    radius: 20,
+                    child: Icon(Icons.person),
+                  ),
             ),
           ],
         ),

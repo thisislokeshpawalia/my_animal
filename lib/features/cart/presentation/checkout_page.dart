@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_animal/features/cart/presentation/widgets/payment_bar.dart';
+import '../../loyalty/provider/loyalty_provider.dart';
 
 import '../../cart/provider/cart_provider.dart';
 
@@ -25,6 +26,11 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
   String? _couponError;
 
   bool _isCouponSheetOpen = false;
+  bool _redeemPoints = false;
+
+  bool _isSubscription = false;
+  String _subscriptionFrequency = 'Monthly';
+  final List<String> _frequencies = ['Weekly', 'Every 2 Weeks', 'Monthly'];
 
   // You can replace this with
   // your actual delivery fee logic.
@@ -629,6 +635,8 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
   @override
   Widget build(BuildContext context) {
     final cartItems = ref.watch(cartProvider);
+    final pointsAsync = ref.watch(loyaltyPointsProvider);
+    final availablePoints = pointsAsync.value ?? 0;
 
     final subtotal = cartItems.fold(
       0.0,
@@ -650,10 +658,18 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     // Example tax
     final tax = subtotal * 0.05;
 
+    // Subscription discount
+    final subscriptionDiscount = _isSubscription ? subtotal * 0.05 : 0.0;
+
+    // Points discount
+    final pointsDiscount = _redeemPoints ? availablePoints.toDouble() : 0.0;
+
     // Final total
     final grandTotal =
     (subtotal -
-        _couponDiscount +
+        _couponDiscount -
+        subscriptionDiscount -
+        pointsDiscount +
         tax +
         finalDelivery)
         .clamp(0.0, double.infinity);
@@ -725,6 +741,96 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
             }),
 
             const SizedBox(height: 25),
+
+            // ===================================
+            // SUBSCRIPTION SECTION
+            // ===================================
+            const Text(
+              'Subscribe & Save 5%',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: Column(
+                children: [
+                  SwitchListTile(
+                    title: const Text('Make this a subscription'),
+                    subtitle: const Text('Save 5% on this order and all future auto-deliveries.'),
+                    value: _isSubscription,
+                    activeColor: Theme.of(context).primaryColor,
+                    onChanged: (val) {
+                      setState(() {
+                        _isSubscription = val;
+                      });
+                    },
+                  ),
+                  if (_isSubscription)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      child: DropdownButtonFormField<String>(
+                        value: _subscriptionFrequency,
+                        items: _frequencies.map((freq) {
+                          return DropdownMenuItem(value: freq, child: Text(freq));
+                        }).toList(),
+                        onChanged: (val) {
+                          if (val != null) {
+                            setState(() {
+                              _subscriptionFrequency = val;
+                            });
+                          }
+                        },
+                        decoration: const InputDecoration(
+                          labelText: 'Delivery Frequency',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            // ===================================
+            // LOYALTY REWARDS SECTION
+            // ===================================
+            pointsAsync.when(
+              data: (points) {
+                if (points > 0) {
+                  return Container(
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 25),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.amber.shade300),
+                      color: Colors.amber.shade50,
+                    ),
+                    child: SwitchListTile(
+                      title: Text('Redeem $points Points'),
+                      subtitle: Text('Save ₹$points on this order.'),
+                      value: _redeemPoints,
+                      activeColor: Colors.orange,
+                      onChanged: (val) {
+                        setState(() {
+                          _redeemPoints = val;
+                        });
+                      },
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+            ),
 
             // ===================================
             // COUPON SECTION
@@ -908,6 +1014,15 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               Colors.green,
             ),
 
+            if (_isSubscription) ...[
+              const SizedBox(height: 10),
+              _summaryRow(
+                'Subscribe & Save (5%)',
+                '- ₹${subscriptionDiscount.toStringAsFixed(0)}',
+                valueColor: Colors.green,
+              ),
+            ],
+
             const SizedBox(height: 10),
 
             _summaryRow(
@@ -945,6 +1060,9 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
 
             PaymentBar(
               grandTotal: grandTotal,
+              isSubscription: _isSubscription,
+              frequency: _isSubscription ? _subscriptionFrequency : '',
+              redeemPoints: _redeemPoints ? availablePoints.toInt() : 0,
             ),
 
             // SizedBox(

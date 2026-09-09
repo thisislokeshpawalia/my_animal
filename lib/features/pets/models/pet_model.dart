@@ -1,19 +1,43 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+class PetModel {
+  final String? id;
+  final String user_id;
+  final String name;
+  final String species;
+  final String breed;
+  final int age;
+  final String health_notes;
 
-part 'pet_model.freezed.dart';
-part 'pet_model.g.dart';
+  PetModel({
+    this.id,
+    required this.user_id,
+    required this.name,
+    required this.species,
+    this.breed = '',
+    this.age = 0,
+    this.health_notes = '',
+  });
 
-@freezed
-class PetModel with _$PetModel {
-  const factory PetModel({
-    @JsonKey(name: '_id') String? id,
-    required String user_id,
-    required String name,
-    required String species,
-    @Default('') String breed,
-    @Default(0) int age,
-    @Default('') String health_notes,
-  }) = _PetModel;
+  factory PetModel.fromJson(Map<String, dynamic> json) {
+    return PetModel(
+      id: json['_id'] as String?,
+      user_id: json['user_id'] as String,
+      name: json['name'] as String,
+      species: json['species'] as String,
+      breed: json['breed'] as String? ?? '',
+      age: json['age'] as int? ?? 0,
+      health_notes: json['health_notes'] as String? ?? '',
+    );
+  }
 
-  factory PetModel.fromJson(Map<String, dynamic> json) => _$PetModelFromJson(json);
+  Map<String, dynamic> toJson() {
+    return {
+      if (id != null) '_id': id,
+      'user_id': user_id,
+      'name': name,
+      'species': species,
+      'breed': breed,
+      'age': age,
+      'health_notes': health_notes,
+    };
+  }
 }

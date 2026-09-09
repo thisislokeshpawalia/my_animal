@@ -8,6 +8,7 @@ class UserBase(BaseModel):
     full_name: str = ""
     phone: str = ""
     role: str = "user" # user, vendor, admin
+    loyalty_points: int = 0
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class UserCreate(UserBase):
@@ -76,6 +77,7 @@ class OrderBase(BaseModel):
     customerEmail: str = ""
     is_subscription: bool = False
     frequency: str = "" # weekly, monthly, bi-monthly
+    redeem_points: int = 0
 
 class Order(OrderBase):
     pass

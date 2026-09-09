@@ -5,7 +5,9 @@ export default function ProductManagement() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [newProduct, setNewProduct] = useState({
+  const [isEditing, setIsEditing] = useState(false)
+  const [editingId, setEditingId] = useState(null)
+  const [formData, setFormData] = useState({
     title: '', description: '', price: '', category: '', image: '', vendor_id: 'admin'
   })
 
@@ -34,18 +36,48 @@ export default function ProductManagement() {
     }
   }
 
-  const handleAddProduct = async (e) => {
+  const handleOpenAdd = () => {
+    setIsEditing(false)
+    setEditingId(null)
+    setFormData({ title: '', description: '', price: '', category: '', image: '', vendor_id: 'admin' })
+    setIsModalOpen(true)
+  }
+
+  const handleOpenEdit = (product) => {
+    setIsEditing(true)
+    setEditingId(product._id)
+    setFormData({
+      title: product.title || '',
+      description: product.description || '',
+      price: product.price || '',
+      category: product.category || '',
+      image: product.image || '',
+      vendor_id: product.vendor_id || 'admin'
+    })
+    setIsModalOpen(true)
+  }
+
+  const handleSaveProduct = async (e) => {
     e.preventDefault()
     try {
-      await apiFetch('/products/', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...newProduct,
-          price: parseFloat(newProduct.price)
+      const payload = {
+        ...formData,
+        price: parseFloat(formData.price)
+      }
+
+      if (isEditing) {
+        await apiFetch(`/products/${editingId}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload)
         })
-      })
+      } else {
+        await apiFetch('/products/', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        })
+      }
+      
       setIsModalOpen(false)
-      setNewProduct({ title: '', description: '', price: '', category: '', image: '', vendor_id: 'admin' })
       loadProducts()
     } catch (err) {
       alert(err.message)
@@ -57,7 +89,7 @@ export default function ProductManagement() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-slate-800">Product Management</h1>
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={handleOpenAdd}
           className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90"
         >
           Add Product
@@ -92,6 +124,7 @@ export default function ProductManagement() {
                   <td className="px-6 py-4 text-slate-600">{product.vendor_id}</td>
                   <td className="px-6 py-4 text-slate-600">₹{product.price}</td>
                   <td className="px-6 py-4 text-right">
+                    <button onClick={() => handleOpenEdit(product)} className="text-blue-500 hover:text-blue-700 font-medium text-sm mr-4">Edit</button>
                     <button onClick={() => handleDelete(product._id)} className="text-red-500 hover:text-red-700 font-medium text-sm">Delete</button>
                   </td>
                 </tr>
@@ -107,31 +140,31 @@ export default function ProductManagement() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Add New Product</h2>
-            <form onSubmit={handleAddProduct} className="space-y-4">
+            <h2 className="text-xl font-bold mb-4">{isEditing ? 'Edit Product' : 'Add New Product'}</h2>
+            <form onSubmit={handleSaveProduct} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Title</label>
-                <input required type="text" className="w-full border rounded-lg p-2" value={newProduct.title} onChange={e => setNewProduct({...newProduct, title: e.target.value})} />
+                <input required type="text" className="w-full border rounded-lg p-2" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Price (₹)</label>
-                <input required type="number" step="0.01" className="w-full border rounded-lg p-2" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} />
+                <input required type="number" step="0.01" className="w-full border rounded-lg p-2" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
-                <input required type="text" className="w-full border rounded-lg p-2" value={newProduct.category} onChange={e => setNewProduct({...newProduct, category: e.target.value})} />
+                <input required type="text" className="w-full border rounded-lg p-2" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Image URL</label>
-                <input type="text" className="w-full border rounded-lg p-2" value={newProduct.image} onChange={e => setNewProduct({...newProduct, image: e.target.value})} />
+                <input type="text" className="w-full border rounded-lg p-2" value={formData.image} onChange={e => setFormData({...formData, image: e.target.value})} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
-                <textarea className="w-full border rounded-lg p-2" value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})}></textarea>
+                <textarea className="w-full border rounded-lg p-2" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}></textarea>
               </div>
               <div className="flex justify-end gap-3 mt-6">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">Save Product</button>
+                <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">{isEditing ? 'Save Changes' : 'Save Product'}</button>
               </div>
             </form>
           </div>

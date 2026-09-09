@@ -12,15 +12,16 @@ import '../widgets/profile_title.dart'; // Note: Assuming this provides ProfileT
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../vendor/presentation/vendor_registration_controller.dart';
+import '../../loyalty/provider/loyalty_provider.dart';
 
-class ProfilePage extends StatefulWidget {
+class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  ConsumerState<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends ConsumerState<ProfilePage> {
   final BiometricService biometricService = BiometricService();
   final BiometricPreferenceService preferenceService = BiometricPreferenceService();
 
@@ -156,6 +157,71 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             const SizedBox(height: 20),
             const ProfileHeader(),
+            const SizedBox(height: 20),
+
+            // --- LOYALTY POINTS BANNER ---
+            Consumer(
+              builder: (context, ref, child) {
+                final pointsAsync = ref.watch(loyaltyPointsProvider);
+                return pointsAsync.when(
+                  data: (points) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.amber.shade400, Colors.orange.shade600],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.orange.withOpacity(0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.stars, color: Colors.white, size: 40),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "MyAnimal Rewards",
+                                  style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  "$points Points",
+                                  style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+                          OutlinedButton(
+                            onPressed: () {},
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              side: const BorderSide(color: Colors.white),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            ),
+                            child: const Text("Redeem"),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  loading: () => const SizedBox(height: 70, child: Center(child: CircularProgressIndicator())),
+                  error: (_, __) => const SizedBox.shrink(),
+                );
+              },
+            ),
+
             const SizedBox(height: 30),
 
             // --- NEW DASHBOARD GRID SECTION ---
@@ -198,6 +264,13 @@ class _ProfilePageState extends State<ProfilePage> {
                         label: "Addresses",
                         onTap: () {
                           context.push(AppRoutes.savedAddress);
+                        },
+                      ),
+                      _buildDashboardCard(
+                        icon: Icons.event_repeat,
+                        label: "Subscriptions",
+                        onTap: () {
+                          context.push(AppRoutes.mySubscriptions);
                         },
                       ),
                     ],

@@ -25,8 +25,8 @@ export default function OrderManagement() {
   const handleUpdateClick = (order) => {
     setEditingOrder(order._id)
     setEditForm({
-      status: order.status || 'Pending',
-      tracking_id: order.tracking_id || ''
+      status: order.status || 'pending',
+      tracking_id: order.trackingId || ''
     })
   }
 
@@ -59,36 +59,44 @@ export default function OrderManagement() {
               <tr>
                 <th className="px-6 py-4 text-sm font-semibold text-slate-600">Order ID</th>
                 <th className="px-6 py-4 text-sm font-semibold text-slate-600">Customer</th>
+                <th className="px-6 py-4 text-sm font-semibold text-slate-600">Products</th>
                 <th className="px-6 py-4 text-sm font-semibold text-slate-600">Amount</th>
                 <th className="px-6 py-4 text-sm font-semibold text-slate-600">Status</th>
                 <th className="px-6 py-4 text-sm font-semibold text-slate-600 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {orders.map((order) => (
-                <tr key={order._id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4">
-                    <p className="font-medium text-slate-800">{order._id.substring(0,8)}...</p>
-                    <p className="text-xs text-slate-500">Tracking: {order.tracking_id || 'N/A'}</p>
-                  </td>
-                  <td className="px-6 py-4 text-slate-600">{order.user_id}</td>
-                  <td className="px-6 py-4 text-slate-600">₹{order.total_amount}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                      order.status === 'Shipped' || order.status === 'Delivered' 
-                      ? 'bg-indigo-100 text-indigo-700' 
-                      : 'bg-orange-100 text-orange-700'
-                    }`}>
-                      {order.status || 'Pending'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button onClick={() => handleUpdateClick(order)} className="text-blue-600 hover:text-blue-800 font-medium text-sm">Update</button>
-                  </td>
-                </tr>
-              ))}
+              {orders.map((order) => {
+                const productList = (order.items || []).map(i => i.productName).join(', ');
+                
+                return (
+                  <tr key={order._id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4">
+                      <p className="font-medium text-slate-800">{order._id.substring(0,8)}...</p>
+                      <p className="text-xs text-slate-500">Tracking: {order.trackingId || 'N/A'}</p>
+                    </td>
+                    <td className="px-6 py-4 text-slate-600 font-medium">{order.receiverName || 'Unknown'}</td>
+                    <td className="px-6 py-4 text-slate-500 text-sm max-w-xs truncate" title={productList}>
+                      {productList || 'No items'}
+                    </td>
+                    <td className="px-6 py-4 text-slate-600 font-medium">₹{order.price || order.total_amount || 0}</td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium capitalize ${
+                        order.status === 'shipped' || order.status === 'delivered' 
+                        ? 'bg-indigo-100 text-indigo-700' 
+                        : 'bg-orange-100 text-orange-700'
+                      }`}>
+                        {order.status || 'pending'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button onClick={() => handleUpdateClick(order)} className="text-blue-600 hover:text-blue-800 font-medium text-sm">Update</button>
+                    </td>
+                  </tr>
+                )
+              })}
               {orders.length === 0 && (
-                <tr><td colSpan="5" className="text-center py-8 text-slate-500">No orders found.</td></tr>
+                <tr><td colSpan="6" className="text-center py-8 text-slate-500">No orders found.</td></tr>
               )}
             </tbody>
           </table>
@@ -103,14 +111,15 @@ export default function OrderManagement() {
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
                 <select 
-                  className="w-full border rounded-lg p-2"
+                  className="w-full border rounded-lg p-2 capitalize"
                   value={editForm.status}
                   onChange={e => setEditForm({...editForm, status: e.target.value})}
                 >
-                  <option value="Pending">Pending</option>
-                  <option value="Processing">Processing</option>
-                  <option value="Shipped">Shipped</option>
-                  <option value="Delivered">Delivered</option>
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="delivered">Delivered</option>
+                  <option value="cancelled">Cancelled</option>
                 </select>
               </div>
               <div>

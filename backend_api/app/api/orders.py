@@ -1,9 +1,20 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, BackgroundTasks
 import os
+import asyncio
 from app.core.db import db
 from app.models.schemas import OrderBase
 
 router = APIRouter()
+
+async def auto_progress_order(order_id: str):
+    from bson.objectid import ObjectId
+    statuses = ["processing", "shipped", "delivered"]
+    for status in statuses:
+        await asyncio.sleep(10)
+        await db.client[os.getenv("DATABASE_NAME", "my_animal")]["orders"].update_one(
+            {"_id": ObjectId(order_id)},
+            {"$set": {"status": status}}
+        )
 
 @router.get("/")
 async def get_orders():
@@ -14,8 +25,23 @@ async def get_orders():
     return orders
 
 @router.post("/")
-async def create_order(order: OrderBase):
+async def create_order(order: OrderBase, background_tasks: BackgroundTasks):
+    from fastapi import HTTPException
+    user_collection = db.client[os.getenv("DATABASE_NAME", "my_animal")]["users"]
+    user = await user_collection.find_one({"email": order.customerEmail})
+    
+    if user:
+        if order.redeem_points > 0:
+            if user.get("loyalty_points", 0) < order.redeem_points:
+                raise HTTPException(status_code=400, detail="Not enough loyalty points")
+            await user_collection.update_one({"_id": user["_id"]}, {"$inc": {"loyalty_points": -order.redeem_points}})
+            
+        earned_points = int(order.price * 0.10)
+        if earned_points > 0:
+            await user_collection.update_one({"_id": user["_id"]}, {"$inc": {"loyalty_points": earned_points}})
+            
     result = await db.client[os.getenv("DATABASE_NAME", "my_animal")]["orders"].insert_one(order.dict())
+    background_tasks.add_task(auto_progress_order, str(result.inserted_id))
     return {"_id": str(result.inserted_id), **order.dict()}
 
 from pydantic import BaseModel

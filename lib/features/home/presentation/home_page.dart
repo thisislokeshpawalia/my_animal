@@ -15,6 +15,7 @@ import '../widgets/category_list.dart';
 import '../widgets/home_app_bar.dart';
 import '../widgets/home_search_bar.dart';
 import '../widgets/product_grid.dart';
+import '../widgets/product_card.dart';
 import '../widgets/section_header.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -79,7 +80,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   userName: _userName,
                   profileImageProvider: _profileImagePath != null && _profileImagePath!.isNotEmpty
                       ? FileImage(File(_profileImagePath!)) as ImageProvider
-                      : const AssetImage('assets/images/default_avatar.png'),
+                      : null,
                   onNotificationTap: () {},
                   onWishlistTap: () => context.push(AppRoutes.wishlist),
                   onProfileTap: () async {
@@ -91,7 +92,93 @@ class _HomePageState extends ConsumerState<HomePage> {
                 const HomeSearchBar(),
                 const SizedBox(height: 20),
                 const BannerSlider(),
+                const SizedBox(height: 20),
+
+                // =====================================
+                // TALK TO A VET
+                // =====================================
+                GestureDetector(
+                  onTap: () => context.push(AppRoutes.vetList),
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.blue.shade300, Colors.blue.shade600],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blue.withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.local_hospital, color: Colors.white, size: 40),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              Text("Talk to a Vet", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                              SizedBox(height: 4),
+                              Text("Get professional advice for your pet.", style: TextStyle(color: Colors.white70, fontSize: 14)),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
+                      ],
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 30),
+
+                // =====================================
+                // RECOMMENDED FOR YOUR PETS
+                // =====================================
+                Consumer(
+                  builder: (context, ref, child) {
+                    final recommendedAsyncValue = ref.watch(recommendedProductsProvider('mock_user_123'));
+                    return recommendedAsyncValue.when(
+                      data: (recommendedProducts) {
+                        if (recommendedProducts.isEmpty) return const SizedBox.shrink();
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SectionHeader(
+                              title: "Recommended for Your Pets ✨",
+                              onSeeAll: () {},
+                            ),
+                            const SizedBox(height: 15),
+                            SizedBox(
+                              height: 260,
+                              child: ListView.separated(
+                                physics: const BouncingScrollPhysics(),
+                                scrollDirection: Axis.horizontal,
+                                itemCount: recommendedProducts.length,
+                                separatorBuilder: (context, index) => const SizedBox(width: 15),
+                                itemBuilder: (context, index) {
+                                  return SizedBox(
+                                    width: 160,
+                                    child: ProductCard(product: recommendedProducts[index]),
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 30),
+                          ],
+                        );
+                      },
+                      loading: () => const SizedBox.shrink(),
+                      error: (err, st) => const SizedBox.shrink(),
+                    );
+                  },
+                ),
+
                 SectionHeader(
                   title: "Shop By Pet",
                   onSeeAll: () {},

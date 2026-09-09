@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../cart/provider/cart_provider.dart';
 import '../../wishlist/providers/wishlist_provider.dart';
 import '../models/product_model.dart';
+import '../../reviews/model/review_model.dart';
+import '../../reviews/provider/review_provider.dart';
+import 'package:intl/intl.dart';
 
 class ProductDetailsBottomSheet extends ConsumerWidget {
   final Product product;
@@ -255,6 +258,97 @@ class ProductDetailsBottomSheet extends ConsumerWidget {
               const SizedBox(height: 25),
 
               // =====================================
+              // REVIEWS SECTION
+              // =====================================
+              
+              const Text(
+                'Reviews & Ratings',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              
+              Consumer(
+                builder: (context, ref, child) {
+                  final reviewsAsync = ref.watch(productReviewsProvider(product.id));
+                  
+                  return reviewsAsync.when(
+                    data: (reviews) {
+                      if (reviews.isEmpty) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                          child: Text('No reviews yet. Be the first to review!'),
+                        );
+                      }
+                      
+                      return Column(
+                        children: reviews.map((review) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade50,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey.shade200),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Row(
+                                        children: List.generate(5, (index) {
+                                          return Icon(
+                                            index < review.rating ? Icons.star : Icons.star_border,
+                                            size: 16,
+                                            color: Colors.amber,
+                                          );
+                                        }),
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        DateFormat('MMM dd, yyyy').format(review.createdAt),
+                                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    review.comment.isNotEmpty ? review.comment : 'No comment provided.',
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
+                    loading: () => const Center(child: CircularProgressIndicator()),
+                    error: (e, st) => Text('Error loading reviews: $e'),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 12),
+              
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    _showWriteReviewSheet(context, ref, product.id);
+                  },
+                  icon: const Icon(Icons.rate_review_outlined),
+                  label: const Text('Write a Review'),
+                ),
+              ),
+
+              const SizedBox(height: 25),
+
+              // =====================================
               // ADD TO CART / QUANTITY
               // =====================================
 
@@ -373,6 +467,111 @@ class ProductDetailsBottomSheet extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+
+  void _showWriteReviewSheet(BuildContext context, WidgetRef ref, String productId) {
+    int selectedRating = 5;
+    final commentController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 20,
+                right: 20,
+                top: 20,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Write a Review', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 20),
+                  const Text('Rating'),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: List.generate(5, (index) {
+                      return IconButton(
+                        icon: Icon(
+                          index < selectedRating ? Icons.star : Icons.star_border,
+                          color: Colors.amber,
+                          size: 32,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            selectedRating = index + 1;
+                          });
+                        },
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: commentController,
+                    maxLines: 3,
+                    decoration: const InputDecoration(
+                      labelText: 'Your Review',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: Consumer(
+                      builder: (context, ref, child) {
+                        final submitState = ref.watch(submitReviewControllerProvider);
+                        final isLoading = submitState is AsyncLoading;
+
+                        return FilledButton(
+                          onPressed: isLoading ? null : () async {
+                            final review = ReviewModel(
+                              userId: 'mock_user_123', // In a real app, get from auth provider
+                              productId: productId,
+                              rating: selectedRating,
+                              comment: commentController.text.trim(),
+                            );
+                            
+                            final success = await ref.read(submitReviewControllerProvider.notifier).submitReview(review);
+                            if (!context.mounted) return;
+                            
+                            if (success) {
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Review submitted successfully!')),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Failed to submit review. Please try again.'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
+                          child: isLoading 
+                            ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                            : const Text('Submit Review'),
+                        );
+                      }
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

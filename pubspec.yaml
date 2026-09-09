@@ -72,6 +72,8 @@ dependencies:
 
   google_fonts: any
   firebase_analytics: ^11.6.0
+  jwt_decoder: ^2.0.1
+  flutter_local_notifications: ^22.3.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

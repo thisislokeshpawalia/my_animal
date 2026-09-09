@@ -10,3 +10,8 @@ final productsProvider = FutureProvider<List<Product>>((ref) async {
   final repository = ref.read(productRepositoryProvider);
   return repository.fetchProducts();
 });
+
+final recommendedProductsProvider = FutureProvider.family<List<Product>, String>((ref, userId) async {
+  final repository = ref.read(productRepositoryProvider);
+  return repository.fetchRecommendations(userId);
+});

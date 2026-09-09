@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, EmailStr
 from passlib.context import CryptContext
 import jwt
+from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta
 import os
 from app.core.db import db
@@ -12,6 +13,8 @@ router = APIRouter()
 SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 1 week
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -81,3 +84,46 @@ async def login(login_data: LoginData):
     )
     
     return {"access_token": access_token, "token_type": "bearer"}
+
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get("email")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+        
+    collection = db.client[os.getenv("DATABASE_NAME", "my_animal")]["users"]
+    user = await collection.find_one({"email": email})
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not found")
+        
+    user["_id"] = str(user["_id"])
+    return user
+
+@router.get("/me")
+async def get_me(current_user: dict = Depends(get_current_user)):
+    return current_user
+
+@router.get("/users")
+async def get_all_users():
+    collection = db.client[os.getenv("DATABASE_NAME", "my_animal")]["users"]
+    cursor = collection.find({})
+    users = await cursor.to_list(length=100)
+    for u in users:
+        u["_id"] = str(u["_id"])
+    return users
+
+class UserUpdate(BaseModel):
+    loyalty_points: int = None
+    role: str = None
+    status: str = None
+
+@router.put("/users/{user_id}")
+async def update_user(user_id: str, user_update: UserUpdate):
+    from bson.objectid import ObjectId
+    collection = db.client[os.getenv("DATABASE_NAME", "my_animal")]["users"]
+    update_data = {k: v for k, v in user_update.dict().items() if v is not None}
+    await collection.update_one({"_id": ObjectId(user_id)}, {"$set": update_data})
+    return {"message": "User updated"}
