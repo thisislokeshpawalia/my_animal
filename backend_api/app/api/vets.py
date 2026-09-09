@@ -10,6 +10,15 @@ router = APIRouter()
 def get_db_collection():
     return db.client[os.getenv("DATABASE_NAME", "my_animal")]["consultations"]
 
+@router.get("/")
+async def get_vets():
+    collection = db.client[os.getenv("DATABASE_NAME", "my_animal")]["vets"]
+    cursor = collection.find({})
+    vets = await cursor.to_list(length=100)
+    for v in vets:
+        v["_id"] = str(v["_id"])
+    return vets
+
 @router.post("/consultations/")
 async def book_consultation(consultation: VetConsultationBase):
     collection = get_db_collection()

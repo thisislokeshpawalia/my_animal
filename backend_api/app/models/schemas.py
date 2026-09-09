@@ -100,3 +100,14 @@ class VetConsultationBase(BaseModel):
 
 class VetConsultation(VetConsultationBase):
     id: Optional[str] = Field(alias="_id", default=None)
+
+class VetBase(BaseModel):
+    name: str
+    specialty: str
+    experience_years: int
+    rating: float
+    consultation_fee: float
+    image_url: str = ""
+
+class Vet(VetBase):
+    id: Optional[str] = Field(alias="_id", default=None)
