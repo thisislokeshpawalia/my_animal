@@ -190,6 +190,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           const SizedBox(width: 16),
                           Expanded(
                             child: Column(
+                              mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
@@ -300,7 +301,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ProfileTile(
                   icon: Icons.medical_services_outlined,
                   title: "Book a Vet Consultation",
-                  onTap: () => context.push(AppRoutes.vetBooking),
+                  onTap: () => context.push(AppRoutes.vetList),
                 ),
                 const Divider(height: 1),
                   Consumer(

@@ -449,20 +449,7 @@ class ProductDetailsBottomSheet extends ConsumerWidget {
 
               const SizedBox(height: 10),
 
-              // =====================================
-              // CLOSE BUTTON
-              // =====================================
 
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Close'),
-                ),
-              ),
             ],
           ),
         ),

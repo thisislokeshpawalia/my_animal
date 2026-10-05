@@ -87,20 +87,20 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                   // =====================================
                   // PRODUCT IMAGE
                   // =====================================
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      widget.product.image,
-                      height: 120,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          height: 120,
-                          color: Colors.grey.shade200,
-                          child: const Center(child: Icon(Icons.pets, size: 40)),
-                        );
-                      },
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        widget.product.image,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.grey.shade200,
+                            child: const Center(child: Icon(Icons.pets, size: 40)),
+                          );
+                        },
+                      ),
                     ),
                   ),
 
@@ -147,7 +147,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                     style: AppTextStyles.title,
                   ),
 
-                  const Spacer(),
+                  const SizedBox(height: 8),
 
                   // =====================================
                   // CART BUTTON

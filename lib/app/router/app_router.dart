@@ -286,7 +286,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.vetBooking,
         builder: (context, state) {
-          final vet = state.extra as VetModel;
+          final vet = state.extra as VetModel?;
+          if (vet == null) {
+            return const VetListPage();
+          }
           return VetBookingPage(vet: vet);
         },
       ),

@@ -138,6 +138,17 @@ class _HomePageState extends ConsumerState<HomePage> {
                 const SizedBox(height: 30),
 
                 // =====================================
+                // SHOP BY PET
+                // =====================================
+                SectionHeader(
+                  title: "Shop By Pet",
+                  onSeeAll: () {},
+                ),
+                const SizedBox(height: 15),
+                const CategoryList(),
+                const SizedBox(height: 30),
+
+                // =====================================
                 // RECOMMENDED FOR YOUR PETS
                 // =====================================
                 Consumer(
@@ -155,7 +166,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                             ),
                             const SizedBox(height: 15),
                             SizedBox(
-                              height: 260,
+                              height: 300,
                               child: ListView.separated(
                                 physics: const BouncingScrollPhysics(),
                                 scrollDirection: Axis.horizontal,
@@ -178,14 +189,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                     );
                   },
                 ),
-
-                SectionHeader(
-                  title: "Shop By Pet",
-                  onSeeAll: () {},
-                ),
-                const SizedBox(height: 15),
-                const CategoryList(),
-                const SizedBox(height: 30),
 
                 // Handle API Response States
                 productsAsyncValue.when(

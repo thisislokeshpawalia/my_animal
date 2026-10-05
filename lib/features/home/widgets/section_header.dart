@@ -16,12 +16,14 @@ class SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(
-          title,
-          style: AppTextStyles.title,
+        Expanded(
+          child: Text(
+            title,
+            style: AppTextStyles.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
-
-        const Spacer(),
 
         TextButton(
           onPressed: onSeeAll,
